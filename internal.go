@@ -15,7 +15,7 @@ type opts struct {
     CardHolderIP string
 }
 
-func (c *Client) req(uri string, in interface{}, out interface{}, opts *opts) error {
+func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options) error {
     var inRdr io.Reader
     reqtype := "GET"
     if in != nil {
@@ -38,8 +38,10 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *opts) er
     if in != nil {
         req.Header.Set("Content-Type", "application/json; charset=UTF-8")
     }
-    if opts != nil && opts.CardHolderIP != "" {
-        req.Header.Set("X-Cardholder-Ip", opts.CardHolderIP)
+    if opts != nil && opts.Headers != nil {
+        for k, v := range opts.Headers {
+            req.Header.Set(k, v)
+        }
     }
     res, err := c.Do(req)
     if err != nil {

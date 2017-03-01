@@ -79,12 +79,16 @@ type PaymentURLData struct {
     Shipping   Shipping `json:"shipping"`
 }
 
-func (c *Client) NewURL(data *PaymentURLData, ip string) (string, error) {
+type Options struct {
+    Headers map[string]string
+}
+
+func (c *Client) NewURL(data *PaymentURLData, opts *Options) (string, error) {
     out := struct {
         Error string `json:"error"`
         URL   string `json:"url"`
     }{}
-    err := c.req("/v1/new", data, &out, &opts{ CardHolderIP: ip })
+    err := c.req("/v1/new", data, &out, opts)
     if err != nil {
         return "", err
     }
@@ -132,7 +136,7 @@ type Action struct {
 type Change struct {
     Error   string `json:"error"`
     Id      uint64 `json:"id"`
-    Seq     uint64 `json:"seq"`
+    Rev     uint64 `json:"rev"`
     OrderId string `json:"orderid"`
     Time struct {
         Created    int64 `json:"created"`
@@ -152,9 +156,9 @@ type SeqRes struct {
     Changes []Change `json:"changes"`
 }
 
-func (c *Client) Seq(seq uint64) (*SeqRes, error) {
+func (c *Client) Seq(seq uint64, opts *Options) (*SeqRes, error) {
     out := SeqRes{}
-    err := c.req("/v1/seq/" + strconv.FormatUint(seq, 10), nil, &out, nil)
+    err := c.req("/v1/seq/" + strconv.FormatUint(seq, 10), nil, &out, opts)
     if err != nil {
         return nil, err
     }
