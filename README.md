@@ -5,7 +5,7 @@ This is a Go client library for Scanpay. You can find the documentation at [docs
 ## Installation
 
 ```bash
-go get github.com/stripe/stripe-go
+go get github.com/scanpaydk/go-scanpay
 ```
 
 To create a payment link all you need to do is:
