@@ -50,9 +50,9 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     defer res.Body.Close()
     if res.StatusCode != 200 {
         if res.StatusCode == 403 {
-            return errors.New("Invalid scanpay client apikey")
+            return errors.New("Invalid Scanpay client apikey")
         }
-        return err
+        return errors.New("Scanpay returned error: " + res.Status)
     }
     if err := json.NewDecoder(io.LimitReader(res.Body, 131072)).Decode(out); err != nil {
         return err
