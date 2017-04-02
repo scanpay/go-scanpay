@@ -136,7 +136,7 @@ type Action struct {
 type Change struct {
     Error   string `json:"error"`
     Id      uint64 `json:"id"`
-    Rev     uint64 `json:"rev"`
+    Rev     uint32 `json:"rev"`
     OrderId string `json:"orderid"`
     Time struct {
         Created    int64 `json:"created"`
