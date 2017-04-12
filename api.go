@@ -127,7 +127,7 @@ func (c *Client) HandlePing(req *http.Request) (*Ping, error) {
 
 
 /* Sequence request */
-type Action struct {
+type Act struct {
     Action string `json:"act"`
     Time   int64  `json:"time"`
     Total  string `json:"total"`
@@ -142,7 +142,7 @@ type Change struct {
         Created    int64 `json:"created"`
         Authorized int64 `json:"authorized"`
     } `json:"time"`
-    Actions []Action `json:"acts"`
+    Acts []Act `json:"acts"`
     Totals struct {
         Authorized string `json:"authorized"`
         Captured   string `json:"captured"`
