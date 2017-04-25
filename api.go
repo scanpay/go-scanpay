@@ -85,18 +85,12 @@ type Options struct {
 
 func (c *Client) NewURL(data *PaymentURLData, opts *Options) (string, error) {
     out := struct {
-        Error string `json:"error"`
         URL   string `json:"url"`
     }{}
-    err := c.req("/v1/new", data, &out, opts)
-    if err != nil {
+    if err := c.req("/v1/new", data, &out, opts); err != nil {
         return "", err
     }
-    if out.Error != "" {
-        return "", errors.New("Error in new payment url response: " + out.Error)
-    }
-    _, err = url.ParseRequestURI(out.URL)
-    if err != nil {
+    if _, err := url.ParseRequestURI(out.URL); err != nil {
         return "", errors.New("Invalid payment URL in new payment url response: " + out.URL)
     }
     return out.URL, nil

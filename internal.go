@@ -8,6 +8,7 @@ import(
     "encoding/json"
     "errors"
     "io"
+    "io/ioutil"
     "net/http"
 )
 
@@ -49,12 +50,13 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     }
     defer res.Body.Close()
     if res.StatusCode != 200 {
-        if res.StatusCode == 403 {
-            return errors.New("Invalid Scanpay client apikey")
+        edata, err := ioutil.ReadAll(io.LimitReader(res.Body, 1024))
+        if err != nil {
+            return errors.New("unable to read error string")
         }
-        return errors.New("Scanpay returned error: " + res.Status)
+        return errors.New(string(edata))
     }
-    if err := json.NewDecoder(io.LimitReader(res.Body, 131072)).Decode(out); err != nil {
+    if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
         return err
     }
     return nil
