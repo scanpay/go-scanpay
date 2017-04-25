@@ -10,6 +10,7 @@ import(
     "io"
     "io/ioutil"
     "net/http"
+    "strings"
 )
 
 type opts struct {
@@ -54,7 +55,7 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
         if err != nil {
             return errors.New("unable to read error string")
         }
-        return errors.New(string(edata))
+        return errors.New(strings.SplitN(string(edata), "\n", 2)[0])
     }
     if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
         return err
