@@ -71,12 +71,13 @@ type Shipping struct {
 }
 
 type PaymentURLData struct {
-    OrderId    string   `json:"orderid"`
-    Language   string   `json:"language"`
-    SuccessURL string   `json:"successurl"`
-    Items      []Item   `json:"items"`
-    Billing    Billing  `json:"billing"`
-    Shipping   Shipping `json:"shipping"`
+    OrderId     string   `json:"orderid"`
+    Language    string   `json:"language"`
+    SuccessURL  string   `json:"successurl"`
+    AutoCapture bool     `json:"autocapture"`
+    Items       []Item   `json:"items"`
+    Billing     Billing  `json:"billing"`
+    Shipping    Shipping `json:"shipping"`
 }
 
 type Options struct {
