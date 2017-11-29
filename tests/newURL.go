@@ -14,13 +14,13 @@ func main() {
             {
                 Name:    "Pink Floyd: The Dark Side Of The Moon",
                 Quantity: 2,
-                Price:   "99.99 DKK",
+                Total:   "199.98 DKK",
                 SKU:     "fadf23",
             },
             {
                 Name:    "巨人宏偉的帽子",
                 Quantity: 2,
-                Price:   "420 DKK",
+                Total:   "840 DKK",
                 SKU:     "124",
             },
         },

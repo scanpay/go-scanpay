@@ -24,7 +24,7 @@ func main() {
             {
                 Name:    "Pink Floyd: The Dark Side Of The Moon",
                 Quantity: 2,
-                Price:   "99.99 DKK",
+                Total:   "199.98 DKK",
                 SKU:     "fadf23",
             },
         },

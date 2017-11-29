@@ -40,7 +40,7 @@ func NewClient(apikey string) *Client {
 type Item struct {
     Name     string `json:"name"`
     Quantity uint64 `json:"quantity"`
-    Price    string `json:"price"`
+    Total    string `json:"total"`
     SKU      string `json:"sku"`
 }
 
