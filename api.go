@@ -25,7 +25,7 @@ func NewClient(apikey string) *Client {
         Client: http.Client{
             Transport: &http.Transport{
                 Proxy: http.ProxyFromEnvironment,
-        		TLSHandshakeTimeout: 10 * time.Second,
+                TLSHandshakeTimeout: 10 * time.Second,
                 Dial: (&net.Dialer{
                     Timeout:   30 * time.Second,
                     KeepAlive: 300 * time.Second,
@@ -129,21 +129,36 @@ type Act struct {
 }
 
 type Change struct {
+    Type    string `json:"type"`
     Error   string `json:"error"`
     Id      uint64 `json:"id"`
     Rev     uint32 `json:"rev"`
     OrderId string `json:"orderid"`
+    Ref string     `json:"ref"`
     Time struct {
         Created    int64 `json:"created"`
         Authorized int64 `json:"authorized"`
     } `json:"time"`
     Acts []Act `json:"acts"`
+    Subscriber struct {
+        Id  uint64 `json:"id"`
+        Ref string `json:"ref"`
+    } `json:"subscriber"`
     Totals struct {
         Authorized string `json:"authorized"`
         Captured   string `json:"captured"`
         Refunded   string `json:"refunded"`
         Left       string `json:"left"`
-    }
+    } `json:"totals"`
+
+    /* type=subscriber specific data */
+    Ref     string `json:"ref"`
+
+    /* type=charge specific data */
+    Subscriber struct {
+        Id  uint64 `json:"id"`
+        Ref string `json:"ref"`
+    } `json:"subscriber"`
 }
 
 type SeqRes struct {
