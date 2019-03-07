@@ -44,6 +44,10 @@ type Item struct {
     SKU      string `json:"sku"`
 }
 
+type Subscriber struct {
+    Ref string `json:"ref"`
+}
+
 type Billing struct {
     Name    string   `json:"name"`
     Company string   `json:"company"`
@@ -71,16 +75,14 @@ type Shipping struct {
 }
 
 type PaymentURLData struct {
-    OrderId     string   `json:"orderid"`
-    Language    string   `json:"language"`
-    SuccessURL  string   `json:"successurl"`
-    AutoCapture bool     `json:"autocapture"`
-    Items       []Item   `json:"items"`
-    Subscriber struct {
-        Ref string `json:"ref"`
-    } `json:"subscriber"`
-    Billing     Billing  `json:"billing"`
-    Shipping    Shipping `json:"shipping"`
+    OrderId     string     `json:"orderid"`
+    Language    string     `json:"language"`
+    SuccessURL  string     `json:"successurl"`
+    AutoCapture bool       `json:"autocapture"`
+    Items       []Item     `json:"items"`
+    Subscriber  Subscriber `json:"subscriber"`
+    Billing     Billing    `json:"billing"`
+    Shipping    Shipping   `json:"shipping"`
 }
 
 type Options struct {
