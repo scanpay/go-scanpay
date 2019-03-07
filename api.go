@@ -134,16 +134,11 @@ type Change struct {
     Id      uint64 `json:"id"`
     Rev     uint32 `json:"rev"`
     OrderId string `json:"orderid"`
-    Ref string     `json:"ref"`
     Time struct {
         Created    int64 `json:"created"`
         Authorized int64 `json:"authorized"`
     } `json:"time"`
     Acts []Act `json:"acts"`
-    Subscriber struct {
-        Id  uint64 `json:"id"`
-        Ref string `json:"ref"`
-    } `json:"subscriber"`
     Totals struct {
         Authorized string `json:"authorized"`
         Captured   string `json:"captured"`
