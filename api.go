@@ -76,6 +76,9 @@ type PaymentURLData struct {
     SuccessURL  string   `json:"successurl"`
     AutoCapture bool     `json:"autocapture"`
     Items       []Item   `json:"items"`
+    Subscriber struct {
+        Ref string `json:"ref"`
+    } `json:"subscriber"`
     Billing     Billing  `json:"billing"`
     Shipping    Shipping `json:"shipping"`
 }
