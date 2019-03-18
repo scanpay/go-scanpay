@@ -125,7 +125,6 @@ func (c *Client) HandlePing(req *http.Request) (*Ping, error) {
     return &ping, nil
 }
 
-
 /* Sequence request */
 type Act struct {
     Action string `json:"act"`
@@ -173,4 +172,16 @@ func (c *Client) Seq(seq uint64, opts *Options) (*SeqRes, error) {
         return nil, err
     }
     return &out, nil
+}
+
+type ChargeData struct {
+    OrderId     string     `json:"orderid"`
+    AutoCapture bool       `json:"autocapture"`
+    Items       []Item     `json:"items"`
+    Billing     Billing    `json:"billing"`
+    Shipping    Shipping   `json:"shipping"`
+}
+
+func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) error {
+    return c.req("/v1/charge/" + strconv.FormatUint(subId, 10), data, nil, opts)
 }
