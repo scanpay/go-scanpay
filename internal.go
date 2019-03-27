@@ -50,10 +50,6 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     }
     defer res.Body.Close()
     if res.StatusCode != 200 {
-        edata, err := ioutil.ReadAll(io.LimitReader(res.Body, 1024))
-        if err != nil {
-            return errors.New("unable to read error string")
-        }
         return errors.New("scanpay returned " + res.Status)
     }
     if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
