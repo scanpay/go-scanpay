@@ -55,7 +55,7 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
         if err != nil {
             return errors.New("unable to read error string")
         }
-        return errors.New(strings.SplitN(string(edata), "\n", 2)[0])
+        return errors.New("scanpay returned " + res.Status)
     }
     if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
         return err
