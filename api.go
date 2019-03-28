@@ -38,51 +38,51 @@ func NewClient(apikey string) *Client {
 
 /* New Payid */
 type Item struct {
-    Name     string `json:"name"`
-    Quantity uint64 `json:"quantity"`
-    Total    string `json:"total"`
-    SKU      string `json:"sku"`
+    Name     string `json:"name,omitempty"`
+    Quantity uint64 `json:"quantity,omitempty"`
+    Total    string `json:"total,omitempty"`
+    SKU      string `json:"sku,omitempty"`
 }
 
 type Subscriber struct {
-    Ref string `json:"ref"`
+    Ref string `json:"ref,omitempty"`
 }
 
 type Billing struct {
-    Name    string   `json:"name"`
-    Company string   `json:"company"`
-    Email   string   `json:"email"`
-    Phone   string   `json:"phone"`
-    Address []string `json:"address"`
-    City    string   `json:"city"`
-    Zip     string   `json:"zip"`
-    State   string   `json:"state"`
-    Country string   `json:"country"`
-    VATIN   string   `json:"vatin"`
-    GLN     string   `json:"gln"`
+    Name    string   `json:"name,omitempty"`
+    Company string   `json:"company,omitempty"`
+    Email   string   `json:"email,omitempty"`
+    Phone   string   `json:"phone,omitempty"`
+    Address []string `json:"address,omitempty"`
+    City    string   `json:"city,omitempty"`
+    Zip     string   `json:"zip,omitempty"`
+    State   string   `json:"state,omitempty"`
+    Country string   `json:"country,omitempty"`
+    VATIN   string   `json:"vatin,omitempty"`
+    GLN     string   `json:"gln,omitempty"`
 }
 
 type Shipping struct {
-    Name    string   `json:"name"`
-    Company string   `json:"company"`
-    Email   string   `json:"email"`
-    Phone   string   `json:"phone"`
-    Address []string `json:"address"`
-    City    string   `json:"city"`
-    Zip     string   `json:"zip"`
-    State   string   `json:"state"`
-    Country string   `json:"country"`
+    Name    string   `json:"name,omitempty"`
+    Company string   `json:"company,omitempty"`
+    Email   string   `json:"email,omitempty"`
+    Phone   string   `json:"phone,omitempty"`
+    Address []string `json:"address,omitempty"`
+    City    string   `json:"city,omitempty"`
+    Zip     string   `json:"zip,omitempty"`
+    State   string   `json:"state,omitempty"`
+    Country string   `json:"country,omitempty"`
 }
 
 type PaymentURLData struct {
-    OrderId     string     `json:"orderid"`
-    Language    string     `json:"language"`
-    SuccessURL  string     `json:"successurl"`
-    AutoCapture bool       `json:"autocapture"`
-    Items       []Item     `json:"items"`
-    Subscriber  Subscriber `json:"subscriber"`
-    Billing     Billing    `json:"billing"`
-    Shipping    Shipping   `json:"shipping"`
+    OrderId     string     `json:"orderid,omitempty"`
+    Language    string     `json:"language,omitempty"`
+    SuccessURL  string     `json:"successurl,omitempty"`
+    AutoCapture bool       `json:"autocapture,omitempty"`
+    Items       []Item     `json:"items,omitempty"`
+    Subscriber  Subscriber `json:"subscriber,omitempty"`
+    Billing     Billing    `json:"billing,omitempty"`
+    Shipping    Shipping   `json:"shipping,omitempty"`
 }
 
 type Options struct {
