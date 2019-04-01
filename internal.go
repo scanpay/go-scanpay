@@ -15,6 +15,10 @@ type opts struct {
     CardHolderIP string
 }
 
+type idemReusableErr struct {
+    error
+}
+
 func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options) error {
     var inRdr io.Reader
     reqtype := "GET"
@@ -43,16 +47,21 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
             req.Header.Set(k, v)
         }
     }
+    idem := req.Header.Get("Idempotency-Key")
     res, err := c.Do(req)
     if err != nil {
-        return err
+        return &idemReusableErr{err}
     }
     defer res.Body.Close()
+    if idem != "" && res.Header.Get("Idempotency-Status") != "OK" {
+        err := errors.New("missing idempotency status from response, status = " + res.Status)
+        return &idemReusableErr{err}
+    }
     if res.StatusCode != 200 {
         return errors.New("scanpay returned " + res.Status)
     }
     if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
-        return err
+        return &idemReusableErr{err}
     }
     return nil
 }
