@@ -15,8 +15,12 @@ type opts struct {
     CardHolderIP string
 }
 
-type idemReusableErr struct {
-    error
+type idempotentResponseErr struct {
+    err string
+}
+
+func (e *idempotentResponseErr) Error() string {
+    return e.err
 }
 
 func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options) error {
@@ -50,18 +54,23 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     idem := req.Header.Get("Idempotency-Key")
     res, err := c.Do(req)
     if err != nil {
-        return &idemReusableErr{err}
+        return err
     }
     defer res.Body.Close()
     if idem != "" && res.Header.Get("Idempotency-Status") != "OK" {
-        err := errors.New("missing idempotency status from response, status = " + res.Status)
-        return &idemReusableErr{err}
+        return errors.New("missing idempotency status from response, httpstatus = " + res.Status)
     }
     if res.StatusCode != 200 {
-        return errors.New("scanpay returned " + res.Status)
+        return &idempotentResponseErr{"scanpay returned " + res.Status}
     }
-    if err := json.NewDecoder(io.LimitReader(res.Body, 1024 * 1024)).Decode(out); err != nil {
-        return &idemReusableErr{err}
+    if err := json.NewDecoder(res.Body).Decode(out); err != nil {
+        switch err.(type) {
+        case *json.SyntaxError, *json.UnmarshalTypeError,
+            *json.UnsupportedTypeError, *json.UnsupportedValueError:
+            return &idempotentResponseErr{"invalid json response from scanpay: " + err.Error()};
+        default:
+            return err
+        }
     }
     return nil
 }

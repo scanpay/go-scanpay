@@ -187,7 +187,7 @@ func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) error {
 }
 
 /* Check if idempotency-key should be reused */
-func IdemReusable(err error) bool {
-    _, ok := err.(*idemReusableErr)
+func IsIdempotentResponseError(err error) bool {
+    _, ok := err.(*idempotentResponseErr)
     return ok
 }
