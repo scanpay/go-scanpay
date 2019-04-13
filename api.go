@@ -2,6 +2,7 @@ package scanpay
 import(
     "encoding/json"
     "errors"
+    "fmt"
     "io"
     "io/ioutil"
     "net"
@@ -9,6 +10,7 @@ import(
     "net/url"
     "strconv"
     "time"
+    "unsafe"
 )
 
 type Client struct {
@@ -97,7 +99,7 @@ func (c *Client) NewURL(data *PaymentURLData, opts *Options) (string, error) {
         return "", err
     }
     if _, err := url.ParseRequestURI(out.URL); err != nil {
-        return "", errors.New("Invalid payment URL in new payment url response: " + out.URL)
+        return "", fmt.Errorf("Invalid payment URL in new payment url response: %s", out.URL)
     }
     return out.URL, nil
 }
@@ -190,4 +192,24 @@ func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) error {
 func IsIdempotentResponseError(err error) bool {
     _, ok := err.(*idempotentResponseErr)
     return ok
+}
+
+type RenewSubscriberData struct {
+    Language   string        `json:"language,omitempty"`
+    SuccessURL string        `json:"successurl,omitempty"`
+    Lifetime   time.Duration `json:"lifetime,omitempty"`
+ }
+
+func (c *Client) RenewSubscriber(subId uint64, data *RenewSubscriberData, opts *Options) (string, error) {
+    out := struct {
+        URL   string `json:"url"`
+    }{}
+    d := (*internalRenewSubscriberData)(unsafe.Pointer(data))
+    if err := c.req(fmt.Sprintf("/v1/subscribers/%d/renew", subId), d, &out, opts); err != nil {
+        return "", err
+    }
+    if _, err := url.ParseRequestURI(out.URL); err != nil {
+        return "", fmt.Errorf("Invalid renew URL in new renew subscriber response: %s", out.URL)
+    }
+    return out.URL, nil
 }

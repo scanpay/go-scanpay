@@ -5,7 +5,8 @@ import(
 )
 
 func main() {
-    client := scanpay.NewClient(" API KEY ")
+    client := scanpay.NewClient("1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W")
+    client.SetHost("api.test.scanpay.dk") /* Connect to the test-environment instead of production */
     data := scanpay.PaymentURLData {
         OrderId: "a766409",
         Language: "da",

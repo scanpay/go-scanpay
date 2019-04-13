@@ -7,8 +7,10 @@ import(
     "encoding/base64"
     "encoding/json"
     "errors"
+    "fmt"
     "io"
     "net/http"
+    "time"
 )
 
 type opts struct {
@@ -94,3 +96,14 @@ func (c *Client) signatureIsValid(req *http.Request, body []byte) bool {
     return subtle.ConstantTimeCompare(buf, []byte(req.Header.Get("X-Signature"))) == 1
 }
 
+type LifetimeDuration time.Duration
+
+type internalRenewSubscriberData struct {
+    Language   string           `json:"language,omitempty"`
+    SuccessURL string           `json:"successurl,omitempty"`
+    Lifetime   LifetimeDuration `json:"lifetime,omitempty"`
+}
+
+func (d *LifetimeDuration) MarshalText() ([]byte, error) {
+    return []byte((*time.Duration)(d).Round(time.Second).String()), nil
+}
