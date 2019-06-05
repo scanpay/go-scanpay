@@ -185,7 +185,7 @@ type ChargeData struct {
 }
 
 func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) error {
-    return c.req("/v1/charge/" + strconv.FormatUint(subId, 10), data, nil, opts)
+    return c.req("/v1/subscribers/" + strconv.FormatUint(subId, 10) + "/charge", data, nil, opts)
 }
 
 /* Check if idempotency-key should be reused */
