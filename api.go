@@ -184,8 +184,20 @@ type ChargeData struct {
     Shipping    Shipping   `json:"shipping"`
 }
 
-func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) error {
-    return c.req("/v1/subscribers/" + strconv.FormatUint(subId, 10) + "/charge", data, nil, opts)
+type ChargeRes struct {
+    Id uint64 `json:"id"`
+    Totals struct {
+        Authorized string `json:"authorized"`
+    } `json:"totals"`
+}
+
+func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) (*ChargeRes, error) {
+    out := ChargeRes{}
+    err := c.req("/v1/subscribers/" + strconv.FormatUint(subId, 10) + "/charge", data, &out, opts)
+    if err != nil {
+        return nil, err
+    }
+    return &out, nil
 }
 
 /* Check if idempotency-key should be reused */

@@ -64,13 +64,15 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     if res.StatusCode != 200 {
         return &idempotentResponseErr{"scanpay returned " + res.Status}
     }
-    if err := json.NewDecoder(res.Body).Decode(out); err != nil {
-        switch err.(type) {
-        case *json.SyntaxError, *json.UnmarshalTypeError,
-            *json.UnsupportedTypeError, *json.UnsupportedValueError:
-            return &idempotentResponseErr{"invalid json response from scanpay: " + err.Error()};
-        default:
-            return err
+    if out != nil {
+        if err := json.NewDecoder(res.Body).Decode(out); err != nil {
+            switch err.(type) {
+            case *json.SyntaxError, *json.UnmarshalTypeError,
+                *json.UnsupportedTypeError, *json.UnsupportedValueError:
+                return &idempotentResponseErr{"invalid json response from scanpay: " + err.Error()};
+            default:
+                return err
+            }
         }
     }
     return nil
