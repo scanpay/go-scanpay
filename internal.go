@@ -44,6 +44,7 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
         return err
     }
     req.Header.Set("Authorization", "Basic " + base64.StdEncoding.EncodeToString([]byte(c.apikey)) )
+    req.Header.Set("X-SDK", "GO-1.1.0")
     if in != nil {
         req.Header.Set("Content-Type", "application/json; charset=UTF-8")
     }
