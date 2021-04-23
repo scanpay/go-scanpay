@@ -1,12 +1,14 @@
 # Scanpay Go client
 
-This is a Go client library for Scanpay. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/).
+The official Go client library for the Scanpay API ([docs](https://docs.scanpay.dk/)). You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at Freenode [`#scanpay`](https://webchat.freenode.net?randomnick=1&channels=scanpay&prompt=1).
 
 ## Installation
 
 ```bash
 go get github.com/scanpaydk/go-scanpay
 ```
+
+## Usage
 
 To create a payment link all you need to do is:
 
