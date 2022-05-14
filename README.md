@@ -1,13 +1,23 @@
 # Scanpay Go client
 
-This is a Go client library for Scanpay. You can find the documentation at [docs.scanpay.dk](https://docs.scanpay.dk/).
+The official Go client library for the Scanpay API ([docs](https://docs.scanpay.dk)). You can always e-mail us at [help@scanpay.dk](mailto:help@scanpay.dk), or chat with us on IRC at libera.chat #scanpay
+
 ## Installation
----
 ```bash
 go get github.com/scanpay/go-scanpay
 ```
-## Payment Link
----
+
+## Usage
+Create a Scanpay client to start using this library:
+
+```go
+var client = scanpay.Client{
+    APIKey: " APIKEY ",
+}
+```
+
+### Payment Link
+
 To create a payment link use NewURL:
 
 ```go
@@ -78,8 +88,7 @@ func main() {
     fmt.Println(url)
 }
 ```
-## Synchronization
----
+### Synchronization
 To know when transactions, charges, subscribers and subscriber renewal succeeds, you need to use the synchronization API. It consists of pings which notify you of changes, and the seq request which allows you to pull changes.
 
 #### HandlePing
@@ -173,8 +182,9 @@ func main() {
     seq(pingSeq)
 }
 ```
-## Transaction Actions
----
+### Transaction Actions
+
+#### Capture
 Use Capture to capture a transaction.
 ```go
 package main
@@ -200,7 +210,7 @@ func main() {
     }
 }
 ```
-
+#### Refund
 Use Refund to refund a captured transaction.
 ```go
 package main
@@ -226,7 +236,7 @@ func main() {
     }
 }
 ```
-
+#### Void
 Use Void to void the amount authorized by the transaction.
 ```go
 package main
@@ -249,8 +259,7 @@ func main() {
     }
 }
 ```
-## Subscriptions
----
+### Subscriptions
 Create a subscriber by using NewURL with a Subscriber parameter.
 ```go
 package main
