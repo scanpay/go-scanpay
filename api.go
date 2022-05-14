@@ -14,28 +14,37 @@ import(
 )
 
 type Client struct {
-    host     string
-    apikey   string
-    insecure bool
-    http.Client
+    APIKey string
+    Host string
+    Insecure bool
+    HttpClient *http.Client
 }
 
-func NewClient(apikey string) *Client {
-    return &Client{
-        host: "api.scanpay.dk",
-        apikey: apikey,
-        Client: http.Client{
-            Transport: &http.Transport{
-                Proxy: http.ProxyFromEnvironment,
-                TLSHandshakeTimeout: 10 * time.Second,
-                Dial: (&net.Dialer{
-                    Timeout:   30 * time.Second,
-                    KeepAlive: 300 * time.Second,
-                }).Dial,
-            },
-            Timeout: 30 * time.Second,
-        },
+
+var defaultHttpClient = &http.Client{
+    Transport: &http.Transport{
+        Proxy: http.ProxyFromEnvironment,
+        TLSHandshakeTimeout: 10 * time.Second,
+        Dial: (&net.Dialer{
+            Timeout:   30 * time.Second,
+            KeepAlive: 300 * time.Second,
+        }).Dial,
+    },
+    Timeout: 30 * time.Second,
+}
+
+func (cl *Client) host() string {
+    if cl.Host == "" {
+        return "api.scanpay.dk"
     }
+    return cl.Host
+}
+
+func (cl *Client) httpClient() *http.Client {
+    if cl.HttpClient == nil {
+        return defaultHttpClient
+    }
+    return cl.HttpClient
 }
 
 /* New Payid */
@@ -200,6 +209,27 @@ func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) (*ChargeR
     return &out, nil
 }
 
+type ActData struct {
+    Total string `json:"total"`
+    Index uint64 `json:"index"`
+}
+
+type CaptureData ActData
+type RefundData ActData
+type VoidData ActData
+
+func (c *Client) Capture(trnId uint64, data *CaptureData, opts *Options) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/capture", data, nil, opts)
+}
+
+func (c *Client) Refund(trnId uint64, data *RefundData, opts *Options) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/refund", data, nil, opts)
+}
+
+func (c *Client) Void(trnId uint64, data *VoidData, opts *Options) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/void", data, nil, opts)
+}
+
 /* Check if idempotency-key should be reused */
 func IsIdempotentResponseError(err error) bool {
     _, ok := err.(*idempotentResponseErr)
@@ -210,7 +240,7 @@ type RenewSubscriberData struct {
     Language   string        `json:"language,omitempty"`
     SuccessURL string        `json:"successurl,omitempty"`
     Lifetime   time.Duration `json:"lifetime,omitempty"`
- }
+}
 
 func (c *Client) RenewSubscriber(subId uint64, data *RenewSubscriberData, opts *Options) (string, error) {
     out := struct {
