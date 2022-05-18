@@ -11,15 +11,14 @@ var client = scanpay.Client{
 }
 
 func main() {
-    subId := uint64(30)
-
-    data := scanpay.RenewSubscriberData {
+    req := scanpay.RenewReq {
+        SubscriberId: 30,
         Language: "da",
         SuccessURL: "https://scanpay.dk",
         Lifetime: 24 * time.Hour,
     }
 
-    if url, err := client.RenewSubscriber(subId, &data, nil); err != nil {
+    if url, err := client.Renew(&req); err != nil {
         fmt.Println("Renew failed:", err)
     } else {
         fmt.Println("Renew URL:", url)

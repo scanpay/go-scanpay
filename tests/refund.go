@@ -10,12 +10,12 @@ var client = scanpay.Client{
 }
 
 func main() {
-    trnId := uint64(750)
-    data := scanpay.RefundData{
+    req := scanpay.RefundReq{
+        TransactionId: uint64(750),
         Total: "123 DKK",
         Index: 1,
     }
-    if err := client.Refund(trnId, &data, nil); err != nil {
+    if err := client.Refund(&req); err != nil {
         fmt.Println("Refund failed:", err)
     } else {
         fmt.Println("Refund succeeded")

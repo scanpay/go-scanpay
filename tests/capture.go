@@ -10,12 +10,12 @@ var client = scanpay.Client{
 }
 
 func main() {
-    trnId := uint64(750)
-    data := scanpay.CaptureData{
+    req := scanpay.CaptureReq{
+        TransactionId: uint64(750),
         Total: "123 DKK",
         Index: 0,
     }
-    if err := client.Capture(trnId, &data, nil); err != nil {
+    if err := client.Capture(&req); err != nil {
         fmt.Println("Capture failed:", err)
     } else {
         fmt.Println("Capture succeeded")

@@ -10,17 +10,17 @@ var client = scanpay.Client{
 }
 
 func main() {
-    data := scanpay.PaymentURLData {
+    req := scanpay.NewURLReq {
         Subscriber: &scanpay.Subscriber{
             Ref: "99",
         },
-    }
-    opts := scanpay.Options{
-        Headers: map[string]string{
-            "X-Cardholder-Ip": "111.222.111.222",
+        Options: &scanpay.Options{
+            Headers: map[string]string{
+                "X-Cardholder-Ip": "111.222.111.222",
+            },
         },
     }
-    url, err := client.NewURL(&data, &opts)
+    url, err := client.NewURL(&req)
     if err != nil {
         fmt.Println("NewURL error:", err)
         return

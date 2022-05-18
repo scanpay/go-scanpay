@@ -20,7 +20,6 @@ type Client struct {
     HttpClient *http.Client
 }
 
-
 var defaultHttpClient = &http.Client{
     Transport: &http.Transport{
         Proxy: http.ProxyFromEnvironment,
@@ -85,7 +84,7 @@ type Shipping struct {
     Country string   `json:"country,omitempty"`
 }
 
-type PaymentURLData struct {
+type NewURLReq struct {
     OrderId     string      `json:"orderid,omitempty"`
     Language    string      `json:"language,omitempty"`
     SuccessURL  string      `json:"successurl,omitempty"`
@@ -94,17 +93,18 @@ type PaymentURLData struct {
     Subscriber  *Subscriber `json:"subscriber,omitempty"`
     Billing     Billing     `json:"billing,omitempty"`
     Shipping    Shipping    `json:"shipping,omitempty"`
+    Options     *Options    `json:"-"`
 }
 
 type Options struct {
     Headers map[string]string
 }
 
-func (c *Client) NewURL(data *PaymentURLData, opts *Options) (string, error) {
+func (c *Client) NewURL(data *NewURLReq) (string, error) {
     out := struct {
         URL   string `json:"url"`
     }{}
-    if err := c.req("/v1/new", data, &out, opts); err != nil {
+    if err := c.req("/v1/new", data, &out, data.Options); err != nil {
         return "", err
     }
     if _, err := url.ParseRequestURI(out.URL); err != nil {
@@ -171,26 +171,33 @@ type Change struct {
     } `json:"subscriber"`
 }
 
+type SeqReq struct {
+    Seq     uint64   `json:"seq"`
+    Options *Options `json:"-"`
+}
+
 type SeqRes struct {
     Seq     uint64   `json:"seq"`
     Changes []Change `json:"changes"`
 }
 
-func (c *Client) Seq(seq uint64, opts *Options) (*SeqRes, error) {
+func (c *Client) Seq(data *SeqReq) (*SeqRes, error) {
     out := SeqRes{}
-    err := c.req("/v1/seq/" + strconv.FormatUint(seq, 10), nil, &out, opts)
+    err := c.req("/v1/seq/" + strconv.FormatUint(data.Seq, 10), nil, &out, data.Options)
     if err != nil {
         return nil, err
     }
     return &out, nil
 }
 
-type ChargeData struct {
-    OrderId     string     `json:"orderid"`
-    AutoCapture bool       `json:"autocapture"`
-    Items       []Item     `json:"items"`
-    Billing     Billing    `json:"billing"`
-    Shipping    Shipping   `json:"shipping"`
+type ChargeReq struct {
+    SubscriberId uint64     `json:"-"`
+    OrderId      string     `json:"orderid"`
+    AutoCapture  bool       `json:"autocapture"`
+    Items        []Item     `json:"items"`
+    Billing      Billing    `json:"billing"`
+    Shipping     Shipping   `json:"shipping"`
+    Options      *Options   `json:"-"`
 }
 
 type ChargeRes struct {
@@ -200,34 +207,40 @@ type ChargeRes struct {
     } `json:"totals"`
 }
 
-func (c *Client) Charge(subId uint64, data *ChargeData, opts *Options) (*ChargeRes, error) {
+func (c *Client) Charge(data *ChargeReq) (*ChargeRes, error) {
     out := ChargeRes{}
-    err := c.req("/v1/subscribers/" + strconv.FormatUint(subId, 10) + "/charge", data, &out, opts)
+    err := c.req("/v1/subscribers/" + strconv.FormatUint(data.SubscriberId, 10) + "/charge",
+                 data, &out, data.Options)
     if err != nil {
         return nil, err
     }
     return &out, nil
 }
 
-type ActData struct {
-    Total string `json:"total"`
-    Index uint64 `json:"index"`
+type ActReq struct {
+    TransactionId uint64   `json:"-"`
+    Total   string   `json:"total"`
+    Index   uint64   `json:"index"`
+    Options *Options `json:"-"`
 }
 
-type CaptureData ActData
-type RefundData ActData
-type VoidData ActData
+type CaptureReq ActReq
+type RefundReq ActReq
+type VoidReq ActReq
 
-func (c *Client) Capture(trnId uint64, data *CaptureData, opts *Options) error {
-    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/capture", data, nil, opts)
+func (c *Client) Capture(data *CaptureReq) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(data.TransactionId, 10) + "/capture",
+                 data, nil, data.Options)
 }
 
-func (c *Client) Refund(trnId uint64, data *RefundData, opts *Options) error {
-    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/refund", data, nil, opts)
+func (c *Client) Refund(data *RefundReq) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(data.TransactionId, 10) + "/refund",
+                 data, nil, data.Options)
 }
 
-func (c *Client) Void(trnId uint64, data *VoidData, opts *Options) error {
-    return c.req("/v1/transactions/" + strconv.FormatUint(trnId, 10) + "/void", data, nil, opts)
+func (c *Client) Void(data *VoidReq) error {
+    return c.req("/v1/transactions/" + strconv.FormatUint(data.TransactionId, 10) + "/void",
+                 data, nil, data.Options)
 }
 
 /* Check if idempotency-key should be reused */
@@ -236,18 +249,21 @@ func IsIdempotentResponseError(err error) bool {
     return ok
 }
 
-type RenewSubscriberData struct {
-    Language   string        `json:"language,omitempty"`
-    SuccessURL string        `json:"successurl,omitempty"`
-    Lifetime   time.Duration `json:"lifetime,omitempty"`
+type RenewReq struct {
+    SubscriberId uint64        `json:"-"`
+    Language     string        `json:"language,omitempty"`
+    SuccessURL   string        `json:"successurl,omitempty"`
+    Lifetime     time.Duration `json:"lifetime,omitempty"`
+    Options      *Options      `json:"-"`
 }
 
-func (c *Client) RenewSubscriber(subId uint64, data *RenewSubscriberData, opts *Options) (string, error) {
+func (c *Client) Renew(data *RenewReq) (string, error) {
     out := struct {
         URL   string `json:"url"`
     }{}
+    /* Convert to internal representation to allow for alternate duraton formatting */
     d := (*internalRenewSubscriberData)(unsafe.Pointer(data))
-    if err := c.req(fmt.Sprintf("/v1/subscribers/%d/renew", subId), d, &out, opts); err != nil {
+    if err := c.req(fmt.Sprintf("/v1/subscribers/%d/renew", data.SubscriberId), d, &out, data.Options); err != nil {
         return "", err
     }
     if _, err := url.ParseRequestURI(out.URL); err != nil {

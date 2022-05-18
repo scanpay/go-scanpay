@@ -10,8 +10,8 @@ var client = scanpay.Client{
 }
 
 func main() {
-    trnId := uint64(30)
-    data := scanpay.ChargeData{
+    req := scanpay.ChargeReq{
+        SubscriberId: 30,
         Items: []scanpay.Item{
             {
                 Name:"some item",
@@ -19,7 +19,7 @@ func main() {
             },
         },
     }
-    if res, err := client.Charge(trnId, &data, nil); err != nil {
+    if res, err := client.Charge(&req); err != nil {
         fmt.Println("Charge failed:", err)
     } else {
         fmt.Println("Charge succeeded", res)

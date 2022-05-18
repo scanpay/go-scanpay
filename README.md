@@ -18,7 +18,9 @@ var client = scanpay.Client{
 
 ### Payment Link
 
-To create a payment link use NewURL:
+
+#### func (cl \*Client) NewURL(req \*NewURLReq) error
+Use NewURL to create a payment link:
 
 ```go
 package main
@@ -28,11 +30,12 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    data := scanpay.PaymentURLData {
+    req := scanpay.NewURLReq {
         OrderId: "a766409",
         Language: "da",
         SuccessURL: "https://insertyoursuccesspage.dk",
@@ -74,24 +77,25 @@ func main() {
             State: "",
             Country: "DK",
         },
-    }
-    opts := scanpay.Options{
-        Headers: map[string]string{
-            "X-Cardholder-Ip": "111.222.111.222",
+        Options: &scanpay.Options{
+            Headers: map[string]string{
+                "X-Cardholder-Ip": "111.222.111.222",
+            },
         },
     }
-    url, err := client.NewURL(&data, &opts)
+    url, err := client.NewURL(&req)
     if err != nil {
         fmt.Println("Error:", err)
         return
     }
     fmt.Println(url)
 }
+}
 ```
 ### Synchronization
 To know when transactions, charges, subscribers and subscriber renewal succeeds, you need to use the synchronization API. It consists of pings which notify you of changes, and the seq request which allows you to pull changes.
 
-#### HandlePing
+#### func (cl \*Client) HandlePing(r \*http.Request) error
 
 When changes happen, a **ping** request will be sent to the **ping URL** specified in the Scanpay dashboard.
 Use HandlePing to parse the ping request:
@@ -105,7 +109,8 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func ping(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +132,7 @@ func main() {
 }
 ```
 
-#### Seq Request
+#### func (cl \*Client) Seq(req \*scanpay.SeqReq) error
 
 To pull changes since last update, use the Seq() call after receiving a ping.
 Store the returned seq-value in a database and use it for the next Seq() call.
@@ -140,7 +145,8 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 var mySeq = uint64(300)
 
@@ -148,7 +154,7 @@ type Acts []scanpay.Act
 
 func seq(pingSeq uint64) {
     for mySeq < pingSeq {
-        seqRes, err := client.Seq(mySeq, nil)
+        seqRes, err := client.Seq(&scanpay.SeqReq{ Seq: mySeq })
         if err != nil {
             fmt.Println("Error:", err)
             return
@@ -184,7 +190,7 @@ func main() {
 ```
 ### Transaction Actions
 
-#### Capture
+#### func (cl \*Client) Capture(req \*CaptureReq) error
 Use Capture to capture a transaction.
 ```go
 package main
@@ -194,23 +200,24 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    trnId := uint64(750)
-    data := scanpay.CaptureData{
+    req := scanpay.CaptureReq{
+        TransactionId: uint64(750),
         Total: "123 DKK",
         Index: 0,
     }
-    if err := client.Capture(trnId, &data, nil); err != nil {
+    if err := client.Capture(&req); err != nil {
         fmt.Println("Capture failed:", err)
     } else {
         fmt.Println("Capture succeeded")
     }
 }
 ```
-#### Refund
+#### func (cl \*Client) Refund(req \*RefundReq) error
 Use Refund to refund a captured transaction.
 ```go
 package main
@@ -220,23 +227,24 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    trnId := uint64(750)
-    data := scanpay.RefundData{
+    req := scanpay.RefundReq{
+        TransactionId: uint64(750),
         Total: "123 DKK",
         Index: 1,
     }
-    if err := client.Refund(trnId, &data, nil); err != nil {
+    if err := client.Refund(&req); err != nil {
         fmt.Println("Refund failed:", err)
     } else {
         fmt.Println("Refund succeeded")
     }
 }
 ```
-#### Void
+#### func (cl \*Client) Void(req \*VoidReq) error
 Use Void to void the amount authorized by the transaction.
 ```go
 package main
@@ -245,14 +253,17 @@ import(
     "github.com/scanpay/go-scanpay"
 )
 
-var client = scanpay.Client{ APIKey: " APIKEY " }
+var client = scanpay.Client{
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
+}
 
 func main() {
-    trnId := uint64(750)
-    data := scanpay.VoidData{
+    req := scanpay.VoidReq{
+        TransactionId: uint64(750),
         Index: 0,
     }
-    if err := client.Void(trnId, &data, nil); err != nil {
+    if err := client.Void(&req); err != nil {
         fmt.Println("Void failed:", err)
     } else {
         fmt.Println("Void succeeded")
@@ -269,21 +280,22 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    data := scanpay.PaymentURLData {
+    req := scanpay.NewURLReq {
         Subscriber: &scanpay.Subscriber{
             Ref: "99",
         },
-    }
-    opts := scanpay.Options{
-        Headers: map[string]string{
-            "X-Cardholder-Ip": "111.222.111.222",
+        Options: &scanpay.Options{
+            Headers: map[string]string{
+                "X-Cardholder-Ip": "111.222.111.222",
+            },
         },
     }
-    url, err := client.NewURL(&data, &opts)
+    url, err := client.NewURL(&req)
     if err != nil {
         fmt.Println("NewURL error:", err)
         return
@@ -292,6 +304,7 @@ func main() {
 }
 ```
 
+#### func (cl \*Client) Charge(req \*ChargeReq) error
 Use Charge to charge a subscriber. The subscriber id is obtained with seq.
 ```go
 package main
@@ -301,12 +314,13 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    trnId := uint64(30)
-    data := scanpay.ChargeData{
+    req := scanpay.ChargeReq{
+        SubscriberId: 30,
         Items: []scanpay.Item{
             {
                 Name:"some item",
@@ -314,13 +328,14 @@ func main() {
             },
         },
     }
-    if res, err := client.Charge(trnId, &data, nil); err != nil {
+    if res, err := client.Charge(&req); err != nil {
         fmt.Println("Charge failed:", err)
     } else {
         fmt.Println("Charge succeeded", res)
     }
 }
 ```
+#### func (cl \*Client) Renew(req \*RenewReq) error
 Use Renew to renew a subscriber, i.e. to attach a new card, if it has expired.
 ```go
 package main
@@ -331,23 +346,22 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: " APIKEY ",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
 }
 
 func main() {
-    subId := uint64(30)
-
-    data := scanpay.RenewSubscriberData {
+    req := scanpay.RenewReq {
+        SubscriberId: 30,
         Language: "da",
         SuccessURL: "https://scanpay.dk",
         Lifetime: 24 * time.Hour,
     }
 
-    if url, err := client.RenewSubscriber(subId, &data, nil); err != nil {
+    if url, err := client.Renew(&req); err != nil {
         fmt.Println("Renew failed:", err)
     } else {
         fmt.Println("Renew URL:", url)
     }
 }
-
 ```

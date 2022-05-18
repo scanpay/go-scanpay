@@ -91,9 +91,11 @@ func (c *Client) signatureIsValid(req *http.Request, body []byte) bool {
 type LifetimeDuration time.Duration
 
 type internalRenewSubscriberData struct {
-    Language   string           `json:"language,omitempty"`
-    SuccessURL string           `json:"successurl,omitempty"`
-    Lifetime   LifetimeDuration `json:"lifetime,omitempty"`
+    SubscriberId uint64        `json:"-"`
+    Language     string        `json:"language,omitempty"`
+    SuccessURL   string        `json:"successurl,omitempty"`
+    Lifetime     LifetimeDuration `json:"lifetime,omitempty"`
+    Options      *Options      `json:"-"`
 }
 
 func (d *LifetimeDuration) MarshalText() ([]byte, error) {

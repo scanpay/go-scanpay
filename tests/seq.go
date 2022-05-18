@@ -5,7 +5,7 @@ import(
 )
 
 var client = scanpay.Client{
-    APIKey: "2881:VwZtDKk+9UuoCWr2xj4G4uFIkQ+Oy4ar/jroMx8NaTE2gmINoehVffYVJTJqfTF2",
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
     Host: "api.test.scanpay.dk",
 }
 var mySeq = uint64(300)
@@ -14,7 +14,7 @@ type Acts []scanpay.Act
 
 func seq(pingSeq uint64) {
     for mySeq < pingSeq {
-        seqRes, err := client.Seq(mySeq, nil)
+        seqRes, err := client.Seq(&scanpay.SeqReq{ Seq: mySeq })
         if err != nil {
             fmt.Println("Error:", err)
             return
