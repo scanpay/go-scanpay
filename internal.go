@@ -36,14 +36,14 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
         reqtype = "POST"
     }
     proto := "https://"
-    if c.insecure {
+    if c.Insecure {
         proto = "http://"
     }
-    req, err := http.NewRequest(reqtype, proto + c.host + uri, inRdr)
+    req, err := http.NewRequest(reqtype, proto + c.host() + uri, inRdr)
     if err != nil {
         return err
     }
-    req.Header.Set("Authorization", "Basic " + base64.StdEncoding.EncodeToString([]byte(c.apikey)) )
+    req.Header.Set("Authorization", "Basic " + base64.StdEncoding.EncodeToString([]byte(c.APIKey)) )
     req.Header.Set("X-SDK", "GO-1.1.0")
     if in != nil {
         req.Header.Set("Content-Type", "application/json; charset=UTF-8")
@@ -54,7 +54,7 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
         }
     }
     idem := req.Header.Get("Idempotency-Key")
-    res, err := c.Do(req)
+    res, err := c.httpClient().Do(req)
     if err != nil {
         return err
     }
@@ -79,18 +79,8 @@ func (c *Client) req(uri string, in interface{}, out interface{}, opts *Options)
     return nil
 }
 
-/* Debug-only method, may change */
-func (c *Client) MakeInsecure() {
-    c.insecure = true
-}
-
-/* Debug-only method, may change */
-func (c *Client) SetHost(host string) {
-    c.host = host
-}
-
 func (c *Client) signatureIsValid(req *http.Request, body []byte) bool {
-    hmacsha2 := hmac.New(sha256.New, []byte(c.apikey))
+    hmacsha2 := hmac.New(sha256.New, []byte(c.APIKey))
     hmacsha2.Write(body)
     rawSig := hmacsha2.Sum(nil)
     buf := make([]byte, base64.StdEncoding.EncodedLen(len(rawSig)))
@@ -101,9 +91,11 @@ func (c *Client) signatureIsValid(req *http.Request, body []byte) bool {
 type LifetimeDuration time.Duration
 
 type internalRenewSubscriberData struct {
-    Language   string           `json:"language,omitempty"`
-    SuccessURL string           `json:"successurl,omitempty"`
-    Lifetime   LifetimeDuration `json:"lifetime,omitempty"`
+    SubscriberId uint64        `json:"-"`
+    Language     string        `json:"language,omitempty"`
+    SuccessURL   string        `json:"successurl,omitempty"`
+    Lifetime     LifetimeDuration `json:"lifetime,omitempty"`
+    Options      *Options      `json:"-"`
 }
 
 func (d *LifetimeDuration) MarshalText() ([]byte, error) {

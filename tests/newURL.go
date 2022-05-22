@@ -4,10 +4,13 @@ import(
     "fmt"
 )
 
+var client = scanpay.Client{
+    APIKey: "1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W",
+    Host: "api.test.scanpay.dk",
+}
+
 func main() {
-    client := scanpay.NewClient("1153:YHZIUGQw6NkCIYa3mG6CWcgShnl13xuI7ODFUYuMy0j790Q6ThwBEjxfWFXwJZ0W")
-    client.SetHost("api.test.scanpay.dk") /* Connect to the test-environment instead of production */
-    data := scanpay.PaymentURLData {
+    req := scanpay.NewURLReq {
         OrderId: "a766409",
         Language: "da",
         SuccessURL: "https://insertyoursuccesspage.dk",
@@ -49,13 +52,13 @@ func main() {
             State: "",
             Country: "DK",
         },
-    }
-    opts := scanpay.Options{
-        Headers: map[string]string{
-            "X-Cardholder-Ip": "111.222.111.222",
+        Options: &scanpay.Options{
+            Headers: map[string]string{
+                "X-Cardholder-Ip": "111.222.111.222",
+            },
         },
     }
-    url, err := client.NewURL(&data, &opts)
+    url, err := client.NewURL(&req)
     if err != nil {
         fmt.Println("Error:", err)
         return
